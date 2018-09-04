@@ -15,5 +15,15 @@ public class KM {
 
 		System.out.println("Total time taken for KM is " + totalTime + "ns");
 	}
+	
+	public void GenerateMatching()
+	{
+		// Create an empty matching
+		
+		// 1. 
+		
+		
+		
+	}
 
 }
