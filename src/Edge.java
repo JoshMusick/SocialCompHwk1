@@ -12,13 +12,14 @@ public class Edge {
 	/**
 	 * The weight of this Edge
 	 */
-	public int edgeWeight; 
+	private int edgeWeight; 
 	
+	// Accessor to retrieve edge weight
+	public int GetWeight() { return edgeWeight; }
 	
 	/**
 	 * Two nodes at the ends of this edge
-	 * They are annotated as Left and Right as if viewing them 
-	 * in a BiPartite graph that has 2 columns of nodes
+	 * They are annotated as X and Y as in a Bi-partite graph 
 	 */
 	public Node nodeX;
 	public Node nodeY;
@@ -47,18 +48,10 @@ public class Edge {
 		edgeWeight = weight;
 	}
 	
-	public void SetEdgeData(Node nodex, Node nodey, int weight) 
-	{
-		nodeX = nodex;
-		nodeY = nodey;
-		edgeWeight = weight;
-	}
-	
-	
 	/** 
 	 * Method for displaying the node index at each end of this edge.
 	 */
 	public void PrintEdge() {
-		System.out.println("("+nodeX.nodeIndex+","+nodeY.nodeIndex+")");
+		System.out.println("("+nodeX.GetIndex() + ","+nodeY.GetIndex() +")");
 	}
 }

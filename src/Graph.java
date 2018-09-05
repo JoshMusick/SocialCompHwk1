@@ -16,10 +16,12 @@ public class Graph {
 		nodey = new Node[numNodes];
 		
 		for (int i = 0; i < numNodes; ++i) {
-			nodex[i].nodeIndex = i;
-			nodey[i].nodeIndex = i;
+			nodex[i] = new Node(i);
+			nodey[i] = new Node(i);
+		}
+		for (int i = 0; i < numNodes; ++i){
 			for (int j = 0; j < numNodes; ++j) {
-				edges[i][j].SetEdgeData(nodex[i], nodey[j], weights[i][j]);
+				edges[i][j] = new Edge(nodex[i], nodey[j], weights[i][j]);
 			}
 		}
 	}
@@ -31,7 +33,7 @@ public class Graph {
 	public void PrintGraphEdges() {
 		for (int i = 0; i < numberNodes; ++i) {
 			for (int j = 0; j < numberNodes; ++j) {
-				System.out.println("("+ i +"," + j +") - " + edges[i][j].edgeWeight);
+				System.out.println("("+ i +"," + j +") - " + edges[i][j].GetWeight());
 			}
 		}
 	}
@@ -40,9 +42,9 @@ public class Graph {
 	 * This method will print the node cover (label) for each index of X and Y
 	 */
 	public void PrintNodeCover() {
-		System.out.println("Index \t\t X Label \t\t Y Label");
+		System.out.println("Index \tX Label \tY Label");
 		for (int i = 0; i < numberNodes; ++i) {
-			System.out.println((i + 1) + " \t\t " + nodex[i].nodeLabel + "\t\t" + nodey[i].nodeLabel);		
+			System.out.println((i + 1) + " \t " + nodex[i].GetLabel() + "\t\t" + nodey[i].GetLabel());		
 		}		
 	}
 	

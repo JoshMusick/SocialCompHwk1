@@ -10,14 +10,29 @@
 public class Node {
 
 	// Label is for storing the label weight in KM
-	public int nodeLabel;
-	public int nodeIndex;
+	private int nodeLabel;
+	private int nodeIndex;
 	
+	/**
+	 * Access methods
+	 */
+	public int GetLabel() { return nodeLabel; }
+	public void SetLabel(int val) { nodeLabel = val; }
+	
+	public int GetIndex() { return nodeIndex; }
+	
+	/**
+	 * Default Constructor
+	 */
 	public Node() {
 		nodeIndex = 0;
 		nodeLabel = 0;
 	}
 	
+	/**
+	 * Constructor used by the Graph Class
+	 * @param index index of the node in a bi-partite graph
+	 */
 	public Node(int index) {
 		nodeIndex = index;
 		nodeLabel = 0;
