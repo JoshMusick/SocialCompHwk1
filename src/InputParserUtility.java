@@ -11,7 +11,7 @@ public class InputParserUtility {
 	 * @param filename
 	 * @return a 2D array
 	 */
-	public static int[][] ParseInput(String filename) {
+	public static Graph ParseInput(String filename) {
 		File inputFile = new File(filename);
 		if (!inputFile.canRead()) {
 			System.out.println("cannot read input file: " + inputFile.getName());
@@ -22,30 +22,39 @@ public class InputParserUtility {
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("fail to read input file: " + e.getMessage());
-			return new int[0][0];
+			return new Graph();
 		}
 	}
 
-	private static int[][] parseInput(final List<String> inputLines) throws Exception {
+	private static Graph parseInput(final List<String> inputLines) throws Exception {
+
+		Graph graph = new Graph();
 
 		List<String> lines = inputLines.stream() //
 		.map(line -> line.replaceAll("^\\s+", "")) // remove leading spaces
 		.filter(line -> (line.matches("^\\d+.*$"))) // filter lines that don't start with a digit
 		.collect(Collectors.toList()); //
 
-		// remove the non-digit characters in the size string
-		String matrixSizeString = lines.remove(0).replaceAll("[^\\d].*", "");
-		Integer matrixSize = Integer.valueOf(matrixSizeString);
-
-
-		int[][] matrix = new int[matrixSize][];
+		lines.remove(0).replaceAll("[^\\d].*", ""); // we don't need the matrix size; we'll infer it.
 
 		for (int i = 0; i < lines.size(); i++) {
-			matrix[i] = Arrays.stream(lines.get(i).split("\\s+")) //
-			.mapToInt(Integer::parseInt) //
-			.toArray();
+			graph.addNodeX(new Node(i));
+			graph.addNodeY(new Node(i));
 		}
 
-		return matrix;
+		for (int i = 0; i < lines.size(); i++) {
+			Node nodeX = graph.getNodeX(i);
+
+			int[] weights = Arrays.stream(lines.get(i).split("\\s+")) //
+					.mapToInt(Integer::parseInt) //
+					.toArray();
+
+			for (int j = 0; j < weights.length; j++) {
+				Node nodeY = graph.getNodeY(j);
+				graph.addEdge(new Edge(nodeX, nodeY, weights[j]));
+			}
+		}
+
+		return graph;
 	}
 }

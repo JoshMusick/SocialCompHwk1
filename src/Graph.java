@@ -1,39 +1,56 @@
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class Graph {
+
+	private List<Node> nodeListX = new ArrayList<Node>(); //initialize to empty set
+	private List<Node> nodeListY = new ArrayList<Node>(); //initialize to empty set
+	private Set<Edge> edgeSet = new HashSet<Edge>(); //initialize to empty set
 
 	/**
 	 * Constructor for a bi-partite graph
 	 *  
 	 * @param numNodes Number of nodes in each group, this number will effectively be doubled
 	 */
-	public Graph(int numNodes, int [][] weights) {
-		numberNodes = numNodes;
-		
-		if (numberNodes < 0) return;
-		
-		edges = new Edge[numNodes][numNodes];
-		nodex = new Node[numNodes];
-		nodey = new Node[numNodes];
-		
-		for (int i = 0; i < numNodes; ++i) {
-			nodex[i] = new Node(i);
-			nodey[i] = new Node(i);
-		}
-		for (int i = 0; i < numNodes; ++i){
-			for (int j = 0; j < numNodes; ++j) {
-				edges[i][j] = new Edge(nodex[i], nodey[j], weights[i][j]);
-			}
-		}
+
+	public void addNodeX(Node node) {
+		nodeListX.add(node.GetIndex(), node);
 	}
-	
+
+	public void addNodeY(Node node) {
+		nodeListY.add(node.GetIndex(), node);
+	}
+
+	public Node getNodeX(int index) {
+		return nodeListX.get(index);
+	}
+
+	public Node getNodeY(int index) {
+		return nodeListY.get(index);
+	}
+
+	public void addEdge(Edge edge) {
+		edgeSet.add(edge);
+	}
+
+	public Edge findEdge(int xIndex, int yIndex) {
+		return edgeSet.stream() //
+		.filter(edge -> edge.nodeX.GetIndex() == xIndex) //
+		.filter(edge -> edge.nodeY.GetIndex() == yIndex) //
+		.findFirst() //
+		.orElse(null);
+	}
 	/*
 	 * This method will print a simple matrix of edge pairs and their weight,
 	 * This is a test to ensure the matrix of edge weights has been loaded properly
 	 */
 	public void PrintGraphEdges() {
-		for (int i = 0; i < numberNodes; ++i) {
-			for (int j = 0; j < numberNodes; ++j) {
-				System.out.println("("+ i +"," + j +") - " + edges[i][j].GetWeight());
+		for (int i = 0; i < nodeListX.size(); i++) {
+			for (int j = 0; j < nodeListY.size(); j++) {
+				Edge edge = findEdge(i, j);
+				System.out.println("("+ i +"," + j +") - " + edge.GetWeight());
 			}
 		}
 	}
@@ -43,8 +60,8 @@ public class Graph {
 	 */
 	public void PrintNodeCover() {
 		System.out.println("Index \tX Label \tY Label");
-		for (int i = 0; i < numberNodes; ++i) {
-			System.out.println((i + 1) + " \t " + nodex[i].GetLabel() + "\t\t" + nodey[i].GetLabel());		
+		for (int i = 0; i < nodeListX.size(); i++) {
+			System.out.println((i + 1) + " \t " + nodeListX.get(i).GetLabel() + "\t\t" + nodeListY.get(i).GetLabel());
 		}		
 	}
 	
@@ -81,5 +98,8 @@ public class Graph {
 	 * the second index is from the nodey array
 	 */
 	protected Edge [][] edges;
-	
+
+
+
+
 }
