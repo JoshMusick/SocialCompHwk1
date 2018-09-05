@@ -35,21 +35,14 @@ public class Graph {
 		edgeSet.add(edge);
 	}
 
-	public Edge findEdge(int xIndex, int yIndex) {
-		return edgeSet.stream() //
-		.filter(edge -> edge.nodeX.GetIndex() == xIndex) //
-		.filter(edge -> edge.nodeY.GetIndex() == yIndex) //
-		.findFirst() //
-		.orElse(null);
-	}
 	/*
 	 * This method will print a simple matrix of edge pairs and their weight,
 	 * This is a test to ensure the matrix of edge weights has been loaded properly
 	 */
-	public void PrintGraphEdges() {
+	public void printGraphEdges() {
 		for (int i = 0; i < nodeListX.size(); i++) {
 			for (int j = 0; j < nodeListY.size(); j++) {
-				Edge edge = findEdge(i, j);
+				Edge edge = getEdge(i, j);
 				System.out.println("("+ i +"," + j +") - " + edge.GetWeight());
 			}
 		}
@@ -58,7 +51,7 @@ public class Graph {
 	/*
 	 * This method will print the node cover (label) for each index of X and Y
 	 */
-	public void PrintNodeCover() {
+	public void printNodeCover() {
 		System.out.println("Index \tX Label \tY Label");
 		for (int i = 0; i < nodeListX.size(); i++) {
 			System.out.println((i + 1) + " \t " + nodeListX.get(i).GetLabel() + "\t\t" + nodeListY.get(i).GetLabel());
@@ -66,7 +59,7 @@ public class Graph {
 	}
 	
 	// Returns the number of nodes in each of the two sets of nodes
-	public int NumNodes() { return numberNodes; }
+	public int numNodes() { return nodeListX.size(); }
 	
 	/**
 	 * Convenience method for retrieving an edge from the graph, based upon the input
@@ -75,31 +68,15 @@ public class Graph {
 	 * @param y Index of the y node array
 	 * @return Edge which corresponds to the given x and y indices
 	 */
-	public Edge GetEdge(int x, int y) {
-		// Should this throw an exception instead?
-		if ((x < 0) || (y < 0)) { return null; }
-		if ((x >= NumNodes()) || (y >= NumNodes())) { return null; }
-		return edges[x][y];
+	public Edge getEdge(int x, int y) {
+		if ((x < 0) || (y < 0)) { throw new IndexOutOfBoundsException(); }
+		if ((x >= numNodes()) || (y >= numNodes())) { throw new IndexOutOfBoundsException(); }
+		
+		return edgeSet.stream() //
+		.filter(edge -> edge.nodeX.GetIndex() == x) //
+		.filter(edge -> edge.nodeY.GetIndex() == y) //
+		.findFirst() //
+		.orElse(null);
 	}
-	
-	/*
-	 * Number of nodes on each side of a bipartite graph, this is effectively doubled
-	 */
-	protected int numberNodes;
-	
-	/* 
-	 * Array of nodes on each side of the bi-partite graph
-	 */
-	protected Node[] nodex;
-	protected Node[] nodey;
-	
-	/* 
-	 * Array of edges between two sets of nodes, the first index will be from the nodex array, 
-	 * the second index is from the nodey array
-	 */
-	protected Edge [][] edges;
-
-
-
 
 }

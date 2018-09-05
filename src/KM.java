@@ -9,8 +9,8 @@ public class KM {
 			return;
 		}
 		Graph graph = InputParserUtility.ParseInput(args[0]);
-		graph.PrintGraphEdges();
-		graph.PrintNodeCover();
+		graph.printGraphEdges();
+		graph.printNodeCover();
 
 		long endTime=System.nanoTime();
 		long totalTime=endTime-startTime;
