@@ -9,10 +9,16 @@
 
 public class Node {
 
-	public long nodeLabel;
-	public long nodeIndex;
+	// Label is for storing the label weight in KM
+	public int nodeLabel;
+	public int nodeIndex;
 	
-	public Node(long index) {
+	public Node() {
+		nodeIndex = 0;
+		nodeLabel = 0;
+	}
+	
+	public Node(int index) {
 		nodeIndex = index;
 		nodeLabel = 0;
 	}
