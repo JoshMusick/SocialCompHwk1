@@ -35,6 +35,34 @@ public class Graph {
 		edgeSet.add(edge);
 	}
 
+	/**
+	 * @return the nodeListX
+	 */
+	public List<Node> getNodeListX() {
+		return nodeListX;
+	}
+
+	/**
+	 * @param nodeListX the nodeListX to set
+	 */
+	public void setNodeListX(List<Node> nodeListX) {
+		this.nodeListX = nodeListX;
+	}
+
+	/**
+	 * @return the nodeListY
+	 */
+	public List<Node> getNodeListY() {
+		return nodeListY;
+	}
+
+	/**
+	 * @param nodeListY the nodeListY to set
+	 */
+	public void setNodeListY(List<Node> nodeListY) {
+		this.nodeListY = nodeListY;
+	}
+
 	/*
 	 * This method will print a simple matrix of edge pairs and their weight,
 	 * This is a test to ensure the matrix of edge weights has been loaded properly
