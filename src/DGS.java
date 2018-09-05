@@ -1,5 +1,7 @@
 import java.util.LinkedList;
+import java.util.Optional;
 import java.util.Queue;
+import java.util.stream.Stream;
 
 public class DGS {
 
@@ -23,20 +25,21 @@ public class DGS {
 	}
 
 
-	private static Graph executeDGSAlgorithm(Graph graph) {
+	private static Graph executeDGSAlgorithm(Graph reference) {
 		// Algorithm implementation here:
 		Graph solution = new Graph();
-		solution.setNodeListX(graph.getNodeListX());
-		solution.setNodeListY(graph.getNodeListY());
+		solution.setNodeListX(reference.getNodeListX());
+		solution.setNodeListY(reference.getNodeListY());
 
 		//enqueue all nodes in solution.nodeListX
 		Queue<Node> nodeQueue = new LinkedList<Node>(solution.getNodeListX());
 
-		//TODO: calculate delta
-		//TODO: set all 'prices' to 0  (store in the 'y' node label?)
+		//calculate the delta
+		Float delta = Float.valueOf(1.0F/(solution.numNodes() + 1));
+
 		while (nodeQueue.peek() != null) {
 			Node activeNode = nodeQueue.remove();
-			Node matchedNode = auctionRound(activeNode, solution);
+			Node matchedNode = auctionRound(activeNode, solution, reference);
 			if (matchedNode != null) {
 				//If we found a match, we have to:
 				//1) determine if there is already an edge to the matched node
@@ -47,14 +50,27 @@ public class DGS {
 				//3) increment the price by delta
 			}
 		}
-
 		return solution;
+
 	}
 
+	private static Node auctionRound(Node activeNode, Graph solution, Graph reference) {
+		// Attempt to find a Node in the 'seller' nodes that maximizes the value of:
+		// the weight of the edge between the two nodes less the price of the node.
+		Node matchedNode = null;
+		Float bestValue = 0F;
 
-	private static Node auctionRound(Node activeNode, Graph solution) {
-		// TODO Implement single round of the auction algorithm here...
-		return null;
+		for (Node potential : reference.getNodeListY()) {
+			Edge edge = reference.getEdge(activeNode.GetIndex(), potential.GetIndex()); // find edge
+			Float value = edge.GetWeight() - potential.getPrice();
+
+			if (value > bestValue) {
+				matchedNode = potential;
+				bestValue = value;
+			}
+		}
+
+		return matchedNode;
 	}
 
 }

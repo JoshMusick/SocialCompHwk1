@@ -12,7 +12,11 @@ public class Node {
 	// Label is for storing the label weight in KM
 	private int nodeLabel;
 	private int nodeIndex;
-	
+
+	// Owner and price are used for the DGS Algorithm
+	private Node owner = null; //
+	private Float price = Float.valueOf(0); //initialize to zero
+
 	/**
 	 * Access methods
 	 */
@@ -37,5 +41,30 @@ public class Node {
 		nodeIndex = index;
 		nodeLabel = 0;
 	}
-	
+
+	/**
+	 * @return the owner
+	 */
+	public Node getOwner() {
+		return owner;
+	}
+	/**
+	 * @param owner the owner to set
+	 */
+	public void setOwner(Node owner) {
+		this.owner = owner;
+	}
+	/**
+	 * @return the price
+	 */
+	public Float getPrice() {
+		return price;
+	}
+	/**
+	 * @param price the price to set
+	 */
+	public void setPrice(Float price) {
+		this.price = price;
+	}
+
 }
