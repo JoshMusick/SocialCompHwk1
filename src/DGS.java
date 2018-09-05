@@ -13,7 +13,7 @@ public class DGS {
 		long endTime=System.nanoTime();
 		long totalTime=endTime-startTime;
 
-		System.out.println("Total time taken for DGS is "+totalTime + "ns");
+		System.out.println("Total time taken for DGS is "+totalTime + " ns");
 	}
 
 }

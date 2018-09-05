@@ -41,7 +41,7 @@ public class InputParserUtility {
 		int[][] matrix = new int[matrixSize][];
 
 		for (int i = 0; i < lines.size(); i++) {
-			matrix[i] = Arrays.stream(lines.get(0).split("\\s+")) //
+			matrix[i] = Arrays.stream(lines.get(i).split("\\s+")) //
 			.mapToInt(Integer::parseInt) //
 			.toArray();
 		}

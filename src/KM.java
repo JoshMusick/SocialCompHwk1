@@ -25,12 +25,16 @@ public class KM {
 		
 		G.PrintGraphEdges();
 		G.PrintNodeCover();
+		
+		G = new Graph(3, matrix);
+		G.PrintGraphEdges();
+		G.PrintNodeCover();
 				
 		
 		long endTime=System.nanoTime();
 		long totalTime=endTime-startTime;
 
-		System.out.println("Total time taken for KM is " + totalTime + "ns");
+		System.out.println("Total time taken for KM is " + totalTime + " ns");
 	}
 	
 	public void GenerateMatching()
