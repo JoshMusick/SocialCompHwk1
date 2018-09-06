@@ -1,7 +1,5 @@
 import java.util.LinkedList;
-import java.util.Optional;
 import java.util.Queue;
-import java.util.stream.Stream;
 
 public class DGS {
 
@@ -13,11 +11,9 @@ public class DGS {
 			return;
 		}
 		Graph graph = InputParserUtility.ParseInput(args[0]);
-		graph.printGraphEdges();
-		graph.printNodeCover();
 		Graph solution = executeDGSAlgorithm(graph);
 
-		solution.printNodeCover();
+		solution.printSolution();
 		long endTime=System.nanoTime();
 		long totalTime=endTime-startTime;
 
@@ -38,34 +34,43 @@ public class DGS {
 		Float delta = Float.valueOf(1.0F/(solution.numNodes() + 1));
 
 		while (nodeQueue.peek() != null) {
-			Node activeNode = nodeQueue.remove();
-			Node matchedNode = auctionRound(activeNode, solution, reference);
+			Node bidder = nodeQueue.remove();
+			Node matchedNode = auctionRound(bidder, solution, reference);
 			if (matchedNode != null) {
-				//If we found a match, we have to:
-				//1) determine if there is already an edge to the matched node
-				//   if so:
-				//   a) place the previously matched node back into the queue
-				//   b) remove the edge from the solution
-				//2) create a new edge from activeNode to matchedNode and add to the solution
-				//3) increment the price by delta
+				Node previousBidder = matchedNode.getOwner();
+				matchedNode.setOwner(bidder);
+				matchedNode.setPrice(matchedNode.getPrice() + delta);
+
+				if (previousBidder != null) {
+					//add the previous bidder back into the queue
+					nodeQueue.add(previousBidder);
+
+					//remove the previous match from the solution;
+					Edge previousEdge = solution.getEdge(previousBidder.GetIndex(), matchedNode.GetIndex());
+					solution.removeEdge(previousEdge);
+				}
+
+				//add the new matched edge to the solution;
+				Edge matchedEdge = reference.getEdge(bidder.GetIndex(), matchedNode.GetIndex());
+				solution.addEdge(matchedEdge);
 			}
 		}
 		return solution;
 
 	}
 
-	private static Node auctionRound(Node activeNode, Graph solution, Graph reference) {
+	private static Node auctionRound(Node bidder, Graph solution, Graph reference) {
 		// Attempt to find a Node in the 'seller' nodes that maximizes the value of:
 		// the weight of the edge between the two nodes less the price of the node.
 		Node matchedNode = null;
 		Float bestValue = 0F;
 
-		for (Node potential : reference.getNodeListY()) {
-			Edge edge = reference.getEdge(activeNode.GetIndex(), potential.GetIndex()); // find edge
-			Float value = edge.GetWeight() - potential.getPrice();
+		for (Node seller : reference.getNodeListY()) {
+			Edge edge = reference.getEdge(bidder.GetIndex(), seller.GetIndex()); // find edge
+			Float value = edge.GetWeight() - seller.getPrice();
 
 			if (value > bestValue) {
-				matchedNode = potential;
+				matchedNode = seller;
 				bestValue = value;
 			}
 		}

@@ -64,6 +64,20 @@ public class Graph {
 	}
 
 	/*
+	 * This method will print the edge matches and their combined weight
+	 */
+	public void printSolution() {
+		int weight = edgeSet.stream() //
+				.map(e -> e.GetWeight()) //
+				.reduce(0, Integer::sum);
+		System.out.println(weight);
+
+		edgeSet.stream() //
+		.sorted((edgeA, edgeB) -> edgeA.nodeX.GetIndex() - edgeB.nodeX.GetIndex()) // sort based on the X node
+		.forEach(edge -> System.out.println("("+ (edge.nodeX.GetIndex() + 1) +"," + (edge.nodeY.GetIndex() + 1) +")"));
+	}
+
+	/*
 	 * This method will print a simple matrix of edge pairs and their weight,
 	 * This is a test to ensure the matrix of edge weights has been loaded properly
 	 */
@@ -105,6 +119,10 @@ public class Graph {
 		.filter(edge -> edge.nodeY.GetIndex() == y) //
 		.findFirst() //
 		.orElse(null);
+	}
+
+	public void removeEdge(Edge edge) {
+		edgeSet.remove(edge);
 	}
 
 }
