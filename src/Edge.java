@@ -56,6 +56,14 @@ public class Edge {
 		return nodeYIndex;
 	}
 	
+	// Returns true if the given node is one of the two that this edge connects
+	public boolean GetConnectsNodes(Node node) {
+		if (node.GetIsXNode()) {
+			return node.GetIndex() == nodeXIndex;
+		}
+		return node.GetIndex() == nodeYIndex; 
+	}
+	
 	/** 
 	 * Method for displaying the node index at each end of this edge.
 	 */

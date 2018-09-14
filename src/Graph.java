@@ -125,6 +125,18 @@ public class Graph {
 		.orElse(null);
 	}
 
+	public Edge getEdge(Node a, Node b) {
+		Edge e = null;
+		if (a.GetIsXNode() && !b.GetIsXNode()) {
+			e = getEdge(a.GetIndex(), b.GetIndex());
+		} else if (b.GetIsXNode() && !a.GetIsXNode()) {
+			e = getEdge(b.GetIndex(), a.GetIndex());
+		} else {
+			System.out.println("ERROR!! - Requested an edge between either 2 X nodes or 2 Y nodes, returning NULL");
+		}		
+		return e;
+	}
+	
 	public void removeEdge(Edge edge) {
 		edgeSet.remove(edge);
 	}
