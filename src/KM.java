@@ -75,7 +75,7 @@ public class KM {
 				if (!IsNodeMatched(y, matching)) {
 					// if y is free, u -> y is an augmenting path
 					// Augment u -> y
-					AugmentPath(u, y);
+					AugmentPath(u, y, graph);
 					getNewX = true;
 				} else {
 					// else y is matched to some z
@@ -145,7 +145,7 @@ public class KM {
 		
 	}
 	
-	public void AugmentPath(Node a, Node b) {
+	public void AugmentPath(Node a, Node b, Graph graph) {
 		// Augment the path from a to b (neither should be in the matching)
 		if (IsNodeMatched(a, matching) || IsNodeMatched(b, matching)) {
 			System.out.println("ERROR - Attempting to augment between two nodes and one is already matched...");
@@ -154,6 +154,47 @@ public class KM {
 		
 		// Now we can do the augmenting ...
 		
+		// Simple check, is edge (x,y) in the tight edges but not in the matching?
+		Edge e = graph.getEdge(a.GetIndex(), b.GetIndex());
+		
+		if (tightEdges.contains(e)) {
+			if (!matching.contains(e)) {
+				matching.add(e);
+				return;
+			}
+		}
+		
+		
+	}
+	
+	// Recursive function for finding the augmenting path
+	// Returns true if path was found, false if no path was found 
+	public boolean FindPath(Node a, Node b, Graph graph, Set<Node> visited) {
+		// node b is the desired end-node
+		// node a is the starting node, (current node being visited
+		// visited is the set of nodes that have been considered in this search path
+		// 	to prevent infinite loops
+		// the size of visited will also be used to determine if an edge should 
+		// 	be selected from current matching or tight edges.
+		// 	If |visited| is odd, edge can't be in matching
+		//  If |visited| is even, edge must be in matching
+		
+		if (visited.contains(a)) return false;
+		visited.add(a);
+		
+		boolean getMatchedEdge = (visited.size() % 2 == 0);
+		if (getMatchedEdge) {
+			System.out.println("Looking for a matched edge, because visited is even with " + visited.size() +" nodes");
+		}
+		
+		if (getMatchedEdge) {
+			
+		} else {
+			
+		}
+		
+		
+		return false;
 	}
 	
 	// This will determine if a node is matched to an edge in the matching
