@@ -18,19 +18,19 @@ public class Edge {
 	public int GetWeight() { return edgeWeight; }
 	
 	/**
-	 * Two nodes at the ends of this edge
+	 * Node index at each ends of this edge
 	 * They are annotated as X and Y as in a Bi-partite graph 
-	 */
-	public Node nodeX;
-	public Node nodeY;
+	 */	
+	private int nodeXIndex;
+	private int nodeYIndex;
 	
 	/** 
 	 * Basic constructor for an edge
 	 */
 	public Edge()
 	{
-		nodeX = null;
-		nodeY = null;
+		nodeXIndex = 0;
+		nodeYIndex = 0;
 		edgeWeight = 0;
 	}
 	
@@ -43,15 +43,23 @@ public class Edge {
 	 */
 	public Edge(Node node_x, Node node_y, int weight)
 	{
-		nodeX = node_x;
-		nodeY = node_y;
+		nodeXIndex = node_x.GetIndex();
+		nodeYIndex = node_y.GetIndex();
 		edgeWeight = weight;
+	}
+	
+	public int GetX_Index() {
+		return nodeXIndex;
+	}
+	
+	public int GetY_Index() {
+		return nodeYIndex;
 	}
 	
 	/** 
 	 * Method for displaying the node index at each end of this edge.
 	 */
 	public void PrintEdge() {
-		System.out.println("("+nodeX.GetIndex() + ","+nodeY.GetIndex() +")");
+		System.out.println("("+nodeXIndex + ","+nodeYIndex +")");
 	}
 }

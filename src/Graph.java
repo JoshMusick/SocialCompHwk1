@@ -73,8 +73,8 @@ public class Graph {
 		System.out.println(weight);
 
 		edgeSet.stream() //
-		.sorted((edgeA, edgeB) -> edgeA.nodeX.GetIndex() - edgeB.nodeX.GetIndex()) // sort based on the X node
-		.forEach(edge -> System.out.println("("+ (edge.nodeX.GetIndex() + 1) +"," + (edge.nodeY.GetIndex() + 1) +")"));
+		.sorted((edgeA, edgeB) -> edgeA.GetX_Index() - edgeB.GetX_Index()) // sort based on the X node
+		.forEach(edge -> System.out.println("("+ (edge.GetX_Index() + 1) +"," + (edge.GetY_Index() + 1) +")"));
 	}
 
 	/*
@@ -115,8 +115,8 @@ public class Graph {
 		if ((x >= numNodes()) || (y >= numNodes())) { throw new IndexOutOfBoundsException(); }
 		
 		return edgeSet.stream() //
-		.filter(edge -> edge.nodeX.GetIndex() == x) //
-		.filter(edge -> edge.nodeY.GetIndex() == y) //
+		.filter(edge -> edge.GetX_Index() == x) //
+		.filter(edge -> edge.GetY_Index() == y) //
 		.findFirst() //
 		.orElse(null);
 	}
