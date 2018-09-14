@@ -1,8 +1,15 @@
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 public class KM {
+	
+	// Create an empty sets to be used in the KM Algorithm
+	private Set<Edge> tightEdges = new HashSet<Edge>();
+	private Set<Edge> matching = new HashSet<Edge>();
+	private Set<Node> S_set = new HashSet<Node>();
+	private Set<Node> T_set = new HashSet<Node>();	
 
 	public static void main(String[] args) {
 		long startTime=System.nanoTime();
@@ -17,25 +24,21 @@ public class KM {
 		
 		System.out.println("----------------");
 		
-		GenerateMatching(graph);
-
+		KM km = new KM();
+		
+		km.GenerateMatching(graph);
+		
 		long endTime=System.nanoTime();
 		long totalTime=endTime-startTime;
 
 		System.out.println("Total time taken for KM is " + totalTime + " ns");
 	}
 	
-	public static void GenerateMatching(Graph graph)
-	{
-		// Create an empty matching
-		Set<Edge> tightEdges = new HashSet<Edge>();
-		Set<Edge> matching = new HashSet<Edge>();
-		Set<Node> S_set = new HashSet<Node>();
-		Set<Node> T_set = new HashSet<Node>();
-		
+	public void GenerateMatching(Graph graph)
+	{		
 		// Assign initial labels,  max(x,y) to each x, 0 for all y,
 		// 		and assign tight edges
-		InitializeLabels(graph, tightEdges);
+		InitializeLabels(graph);
 		
 		boolean getNewX = true;
 		int x_index = 0;
@@ -45,18 +48,16 @@ public class KM {
 			// Step 2. - Pick free vertex in X and assign to S
 			Node u = null;
 			if (getNewX) {
-				graph.getNodeX(x_index++);
+				u = graph.getNodeX(x_index++);
 				S_set.add(u);
 				getNewX = false;
 			}
-
 			
 			// Step 3. - Test if Neighbors == T
-			Set<Node> Neigh = GetNeighbors(S_set, tightEdges, graph);
+			Set<Node> Neigh = GetNeighbors(graph);
 			if (IsSetEqual(Neigh, T_set)) {
 				// Adjust the labels
-				// ...
-				
+				AdjustLabels(graph);
 			} else {
 			// Step 4. 
 				// Remove T from Neighbors
@@ -74,6 +75,7 @@ public class KM {
 				if (!IsNodeMatched(y, matching)) {
 					// if y is free, u -> y is an augmenting path
 					// Augment u -> y
+					AugmentPath(u, y);
 					getNewX = true;
 				} else {
 					// else y is matched to some z
@@ -84,7 +86,7 @@ public class KM {
 						if (edge.GetY_Index() == y.GetIndex()) {
 							S_set.add(graph.getNodeX(edge.GetX_Index()));
 							break;
-				// 		Re-test for Neighbors, go to step 3
+				// 		Re-test for Neighbors (getNewX = false), go to step 3
 						}
 					}								
 				}
@@ -92,16 +94,58 @@ public class KM {
 		}		
 	}
 	
-	public static void AdjustLabels(Set<Node> S_set, Set<Node> T_set,
-			Set<Edge> tightSet, Graph graph) {
+	public void AdjustLabels(Graph graph) {
 		// Calculate the minimum alpha for all edges from S to y not in T, 
 		// Add that edge to the tight edges, and subtract S node labels
 		// by alpha, add alpha to T set, 
 		
+		int minAlpha = Integer.MAX_VALUE;
+		
+		int xIdx = -1;
+		int yIdx = -1;
+		
+		// Get nodes in Y but not in T_set
+		HashSet<Node> availNodes = new HashSet<Node>();
+		List<Node> yNodes = graph.getNodeListY();
+		for (Node n : yNodes) {
+			if (!T_set.contains(n) ) {
+				availNodes.add(n);
+			}
+		}
+		
+		// Now compute the alpha for each edge
+		for (Node s : S_set) {
+			for (Node y: availNodes) {
+				int alpha = s.GetLabel() + y.GetLabel() - graph.getEdge(s.GetIndex(), y.GetIndex()).GetWeight();
+				if (alpha < minAlpha) {
+					minAlpha = alpha;
+					xIdx = s.GetIndex();
+					yIdx = y.GetIndex();
+				}
+			}			
+		}
+		
+		if ((xIdx == -1) || (yIdx == -1)) {
+			System.out.println("ERROR -- No new edges found in AdjustLabels!!");
+			return;
+		}
+		
+		for (Node s : S_set) {
+			s.SetLabel(s.GetLabel() - minAlpha);
+		}
+		for (Node t : T_set) {
+			t.SetLabel(t.GetLabel() + minAlpha);
+		}
+		
+		// Finally add edge from xIdx to yIdx to tightEdges
+		tightEdges.add(graph.getEdge(xIdx, yIdx));
+		System.out.println("----------");
+		System.out.println("After Updating Labels, and adding edge from ("+xIdx+", "+yIdx+")");
+		PrintEdges(tightEdges, 0);
 		
 	}
 	
-	public static void AugmentPath(Node a, Node b, Set<Edge> tightEdges, Set<Edge> matching) {
+	public void AugmentPath(Node a, Node b) {
 		// Augment the path from a to b (neither should be in the matching)
 		if (IsNodeMatched(a, matching) || IsNodeMatched(b, matching)) {
 			System.out.println("ERROR - Attempting to augment between two nodes and one is already matched...");
@@ -128,18 +172,16 @@ public class KM {
 	}
 	
 	public static boolean IsSetEqual(Set<Node> s1, Set<Node> s2) {
-		
 		if (s1.size() != s2.size()) { return false; }
 		if (s1.containsAll(s2)) { return true; }
 		return false;
 	}
 	
-	public static Set<Node> GetNeighbors(Set<Node> S, 
-			Set<Edge> tightEdges, Graph graph) {
+	public Set<Node> GetNeighbors(Graph graph) {
 	
 		Set<Node> neigh = new HashSet<Node>();
 		// Test all nodes in S
-		for (Node n : S) {
+		for (Node n : S_set) {
 			int index = n.GetIndex();
 			// If a node in S has an outgoing edge in the tight
 			//  	edges, add that node to the neighbors
@@ -154,7 +196,7 @@ public class KM {
 		return neigh;
 	}
 	
-	public static void InitializeLabels(Graph graph, Set<Edge> tightEdges) {
+	public void InitializeLabels(Graph graph) {
 		
 		for (int i = 0; i < graph.numNodes(); ++i) {
 			graph.getNodeY(i).SetLabel(0);
