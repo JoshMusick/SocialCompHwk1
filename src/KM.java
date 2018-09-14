@@ -57,94 +57,36 @@ public class KM {
 		nonMatching.add(e);
 	}
 	
-	public void PrintMatching() {
-		PrintEdges(matching, 0);
-	}
+	// Calculates the Neighbor nodes of set S
+	public Set<Node> GetNeighbors(Graph graph) {
 	
-	public void dp(String s) {
-		if (debug) {
-			System.out.println(s);
-		}
-	}
-	
-	public Node GetAvailableXNode(Graph graph) {
-		Node x = null;
-		
-		HashSet<Node> Xset = new HashSet<Node>(graph.getNodeListX());
-		for (Node n : Xset) {
-			dp("Node is " + n.GetIsXNode() + " the x node, with index " + n.GetIndex());
-		}
-		
-		Xset.removeAll(S_set);
-		Iterator<Node> iter = Xset.iterator();
-		if (iter.hasNext()) {
-			x = iter.next();
-		}		
-		return x;		
-	}
-	
-	public void GenerateMatching(Graph graph)
-	{		
-		// Assign initial labels,  max(x,y) to each x, 0 for all y,
-		// 		and assign tight edges
-		InitializeLabels(graph);
-		
-		boolean getNewX = true;
-		int x_index = 0;
-		// Loop through algorithm while the matching is not a perfect match
-		while (matching.size() < graph.numNodes()) {
-			
-			dp("Starting the while loop");
-			// Step 2. - Pick free vertex in X and assign to S
-			Node u = null;
-			if (getNewX) {
-				u = graph.getNodeX(x_index++);
-				S_set.add(u);
-				getNewX = false;
-				dp("Selecting x node at index "+u.GetIndex()+" for inclusion in set X");
-			}
-			
-			// Step 3. - Test if Neighbors == T
-			Set<Node> Neigh = GetNeighbors(graph);
-			if (IsSetEqual(Neigh, T_set)) {
-				dp("T set and N(S) are equal, adjusting labels");
-				// Adjust the labels
-				AdjustLabels(graph);
-			} else {
-			// Step 4. 
-				dp("T set and N(S) are NOT equal, selecting a y and augmenting");
-				// Remove T from Neighbors
-				Neigh.removeAll(T_set);
-				// select a y in Neigh
-				Node y = null;
-				Iterator<Node> iter = Neigh.iterator();
-				if (iter.hasNext()) {
-					y = iter.next();
-				} else {
-					System.out.println("ERROR - no nodes found in the Neighbors - T set");					
-					return;
+		Set<Node> neigh = new HashSet<Node>();
+		// Test all nodes in S
+		for (Node n : S_set) {
+			int index = n.GetIndex();
+			// If a node in S has an outgoing edge in the tight
+			//  	edges, add that node to the neighbors
+			for (Edge e : tightEdges) {
+				if (e.GetX_Index() == index) {
+					// Add the y node to the neighbors set
+					neigh.add(graph.getNodeY(e.GetY_Index()));
 				}
-				
-				if (!IsNodeMatched(y, matching)) {
-					// if y is free, u -> y is an augmenting path
-					// Augment u -> y
-					AugmentPath(u, y, graph);
-					getNewX = true;
-				} else {
-					// else y is matched to some z
-					// find what node y is matched with.
-					T_set.add(y);
-					for (Edge edge : matching) {
-//				 		Add z to S  and y to T
-						if (edge.GetY_Index() == y.GetIndex()) {
-							S_set.add(graph.getNodeX(edge.GetX_Index()));
-							break;
-				// 		Re-test for Neighbors (getNewX = false), go to step 3
-						}
-					}								
-				}
-			}		
-		}		
+			}			
+		}
+		// return the set of neighbors
+		return neigh;
+	}
+	
+	public void Update(Graph graph, Node u) {
+		// Calculate the neighbors of S
+		Set<Node> Neigh = GetNeighbors(graph);
+		
+		if (IsSetEqual(Neigh, T_set)) {
+			dp("T set and N(S) are equal, adjusting labels");
+			// Adjust the labels
+			AdjustLabels(graph);
+		} 
+		Step4Augment(graph, u);	
 	}
 	
 	public void AdjustLabels(Graph graph) {
@@ -197,6 +139,92 @@ public class KM {
 			System.out.println("Below are the tight edges after Updating Labels, and adding edge from ("+xIdx+", "+yIdx+")");
 			PrintEdges(tightEdges, 0);
 		}
+	}
+	
+	public void Step4Augment(Graph graph, Node u) {
+		
+		Set<Node> neighbors = GetNeighbors(graph);
+		dp("T set and N(S) are NOT equal, selecting a y and augmenting");
+		// Remove T from Neighbors
+		neighbors.removeAll(T_set);
+		// select a y in Neigh
+		Node y = null;
+		Iterator<Node> iter = neighbors.iterator();
+		if (iter.hasNext()) {
+			y = iter.next();
+		} else {
+			System.out.println("ERROR - no nodes found in the Neighbors - T set");					
+			return;
+		}
+		
+		if (!IsNodeMatched(y, matching)) {
+			// if y is free, u -> y is an augmenting path
+			// Augment u -> y
+			AugmentPath(u, y, graph);
+			return;
+		} else {
+			// else y is matched to some z
+			// find what node y is matched with.
+			T_set.add(y);
+			for (Edge edge : matching) {
+				//	Add z to S  and y to T
+				if (edge.GetY_Index() == y.GetIndex()) {
+					S_set.add(graph.getNodeX(edge.GetX_Index()));
+					break;
+				}
+			}
+			//  go to step 3
+			Update(graph, u);
+		}		
+	}
+	
+	public void GenerateMatching(Graph graph)
+	{		
+		// Assign initial labels,  max(x,y) to each x, 0 for all y,
+		// 		and assign tight edges
+		InitializeLabels(graph);
+		
+		// Loop through algorithm while the matching is not a perfect match
+		while (matching.size() < graph.numNodes()) {
+			
+			dp("Starting the while loop");
+			// Step 2. - Pick free vertex in X and assign to S
+			Node u = InitializeStep2(graph);
+			dp("Selecting x node at index "+u.GetIndex()+" for inclusion in set X");
+			
+			// Step 3 and 4 - improve l by adding edges or augmenting matching M
+			Update(graph, u);	
+		}		
+	}
+	
+	public Node GetAvailableXNode(Graph graph) {
+		Node x = null;
+		
+		HashSet<Node> Xset = new HashSet<Node>(graph.getNodeListX());
+		for (Node n : Xset) {
+			dp("Node is from " + (n.GetIsXNode() ? "X" : "Y") + " the x node, with index " + n.GetIndex());
+		}
+		
+		for (Edge e : matching) {
+			int xIndx = e.GetX_Index();
+			Xset.remove(graph.getNodeX(xIndx));
+		}
+		
+		Iterator<Node> iter = Xset.iterator();
+		if (iter.hasNext()) {
+			x = iter.next();
+		}		
+		return x;		
+	}
+	
+	public Node InitializeStep2(Graph graph) {
+		S_set.clear();
+		T_set.clear();
+		
+		Node x = GetAvailableXNode(graph);
+		S_set.add(x);
+		
+		return x;	
 	}
 	
 	public void AugmentPath(Node a, Node b, Graph graph) {
@@ -335,25 +363,6 @@ public class KM {
 		return false;
 	}
 	
-	public Set<Node> GetNeighbors(Graph graph) {
-	
-		Set<Node> neigh = new HashSet<Node>();
-		// Test all nodes in S
-		for (Node n : S_set) {
-			int index = n.GetIndex();
-			// If a node in S has an outgoing edge in the tight
-			//  	edges, add that node to the neighbors
-			for (Edge e : tightEdges) {
-				if (e.GetX_Index() == index) {
-					// Add the y node to the neighbors set
-					neigh.add(graph.getNodeY(e.GetY_Index()));
-				}
-			}			
-		}
-		// return the set of neighbors
-		return neigh;
-	}
-	
 	public void InitializeLabels(Graph graph) {
 		
 		for (int i = 0; i < graph.numNodes(); ++i) {
@@ -391,6 +400,18 @@ public class KM {
 		.sorted((edgeA, edgeB) -> edgeA.GetX_Index() - edgeB.GetX_Index()) // sort based on the X node
 		.forEach(edge -> System.out.println("("+ (edge.GetX_Index() + offset) +"," + (edge.GetY_Index() + offset) +")"));
 		System.out.println("****** Print Complete *****");
+	}
+	
+	public void PrintMatching() {
+		PrintEdges(matching, 0);
+	}
+	
+	// debug printing function (saving me from typing system.out ...) and conditionally disabling debug under
+	// debug flag (so not just pure laziness)
+	public void dp(String s) {
+		if (debug) {
+			System.out.println(s);
+		}
 	}
 
 }
