@@ -1,4 +1,5 @@
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 public class KM {
@@ -32,19 +33,125 @@ public class KM {
 		Set<Node> S_set = new HashSet<Node>();
 		Set<Node> T_set = new HashSet<Node>();
 		
-		// 1. Assign initial labels,  max(x,y) to each x, 0 for all y
+		// Assign initial labels,  max(x,y) to each x, 0 for all y,
+		// 		and assign tight edges
 		InitializeLabels(graph, tightEdges);
 		
+		boolean getNewX = true;
+		int x_index = 0;
+		// Loop through algorithm while the matching is not a perfect match
+		while (matching.size() < graph.numNodes()) {
+			
+			// Step 2. - Pick free vertex in X and assign to S
+			Node u = null;
+			if (getNewX) {
+				graph.getNodeX(x_index++);
+				S_set.add(u);
+				getNewX = false;
+			}
+
+			
+			// Step 3. - Test if Neighbors == T
+			Set<Node> Neigh = GetNeighbors(S_set, tightEdges, graph);
+			if (IsSetEqual(Neigh, T_set)) {
+				// Adjust the labels
+				// ...
+				
+			} else {
+			// Step 4. 
+				// Remove T from Neighbors
+				Neigh.removeAll(T_set);
+				// select a y in Neigh
+				Node y = null;
+				Iterator<Node> iter = Neigh.iterator();
+				if (iter.hasNext()) {
+					y = iter.next();
+				} else {
+					System.out.println("ERROR - no nodes found in the Neighbors - T set");					
+					return;
+				}
+				
+				if (!IsNodeMatched(y, matching)) {
+					// if y is free, u -> y is an augmenting path
+					// Augment u -> y
+					getNewX = true;
+				} else {
+					// else y is matched to some z
+					// find what node y is matched with.
+					T_set.add(y);
+					for (Edge edge : matching) {
+//				 		Add z to S  and y to T
+						if (edge.GetY_Index() == y.GetIndex()) {
+							S_set.add(graph.getNodeX(edge.GetX_Index()));
+							break;
+				// 		Re-test for Neighbors, go to step 3
+						}
+					}								
+				}
+			}		
+		}		
+	}
+	
+	public static void AdjustLabels(Set<Node> S_set, Set<Node> T_set,
+			Set<Edge> tightSet, Graph graph) {
+		// Calculate the minimum alpha for all edges from S to y not in T, 
+		// Add that edge to the tight edges, and subtract S node labels
+		// by alpha, add alpha to T set, 
 		
-		// 2. Generate the "tight edge" Graph which will be E_l, this will 
-		// 		include all edges connected to x nodes, with max weight (labels should be same)
 		
-		// 3. Select an initial matching M from the the E_l
+	}
+	
+	public static void AugmentPath(Node a, Node b, Set<Edge> tightEdges, Set<Edge> matching) {
+		// Augment the path from a to b (neither should be in the matching)
+		if (IsNodeMatched(a, matching) || IsNodeMatched(b, matching)) {
+			System.out.println("ERROR - Attempting to augment between two nodes and one is already matched...");
+			return;
+		}
 		
-		// 4. Begin algorithm (see pg 14 of lecture notes)
+		// Now we can do the augmenting ...
 		
+	}
+	
+	// This will determine if a node is matched to an edge in the matching
+	public static boolean IsNodeMatched(Node node, Set<Edge> matching) {
+		// Since nodes have an X or Y(ness), this function will determine
+		// if the node is matched to any edge in the matching
+		int index = node.GetIndex();
+		for (Edge edge : matching) {
+			if (node.GetIsXNode()) {
+				if (edge.GetX_Index() == index) return true;
+			} else {
+				if (edge.GetY_Index() == index) return true;
+			}
+		}		
+		return false;
+	}
+	
+	public static boolean IsSetEqual(Set<Node> s1, Set<Node> s2) {
 		
-		
+		if (s1.size() != s2.size()) { return false; }
+		if (s1.containsAll(s2)) { return true; }
+		return false;
+	}
+	
+	public static Set<Node> GetNeighbors(Set<Node> S, 
+			Set<Edge> tightEdges, Graph graph) {
+	
+		Set<Node> neigh = new HashSet<Node>();
+		// Test all nodes in S
+		for (Node n : S) {
+			int index = n.GetIndex();
+			// If a node in S has an outgoing edge in the tight
+			//  	edges, add that node to the neighbors
+			for (Edge e : tightEdges) {
+				if (e.GetX_Index() == index) {
+					// Add the y node to the neighbors set
+					neigh.add(graph.getNodeY(e.GetY_Index()));
+				}
+			}			
+		}
+		// return the set of neighbors
+		return neigh;
 	}
 	
 	public static void InitializeLabels(Graph graph, Set<Edge> tightEdges) {

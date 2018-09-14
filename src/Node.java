@@ -12,6 +12,7 @@ public class Node {
 	// Label is for storing the label weight in KM
 	private int nodeLabel;
 	private int nodeIndex;
+	private boolean isXnode; // set to true if this is an X node
 
 	// Owner and price are used for the DGS Algorithm
 	private Node owner = null; //
@@ -25,12 +26,17 @@ public class Node {
 	
 	public int GetIndex() { return nodeIndex; }
 	
+	// access methods, to get and set the node to be an "X" node
+	public boolean GetIsXNode() { return isXnode; }
+	public void SetIsXNode() { isXnode = true; }
+	
 	/**
 	 * Default Constructor
 	 */
 	public Node() {
 		nodeIndex = 0;
 		nodeLabel = 0;
+		isXnode = false;
 	}
 	
 	/**
@@ -40,6 +46,7 @@ public class Node {
 	public Node(int index) {
 		nodeIndex = index;
 		nodeLabel = 0;
+		isXnode = false;
 	}
 
 	/**

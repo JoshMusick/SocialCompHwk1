@@ -16,6 +16,7 @@ public class Graph {
 	 */
 
 	public void addNodeX(Node node) {
+		node.SetIsXNode();
 		nodeListX.add(node.GetIndex(), node);
 	}
 
@@ -46,6 +47,9 @@ public class Graph {
 	 * @param nodeListX the nodeListX to set
 	 */
 	public void setNodeListX(List<Node> nodeListX) {
+		for (Node n : nodeListX) {
+			n.SetIsXNode();
+		}
 		this.nodeListX = nodeListX;
 	}
 
