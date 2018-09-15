@@ -24,7 +24,7 @@ public class KM {
 			return;
 		}
 		KM km = new KM();
-		km.debug = true;
+//		km.debug = true;
 		Graph graph = InputParserUtility.ParseInput(args[0]);
 		
 		if (km.debug) {
@@ -78,10 +78,18 @@ public class KM {
 	}
 	
 	public void Update(Graph graph, Node u) {
+		
+		dp("Calculating Neighbors for Step 3 or 4");
+				
 		// Calculate the neighbors of S
 		Set<Node> Neigh = GetNeighbors(graph);
 		
+		printSandT();
+		dp("Neighbors are...");
+		printNodes(Neigh);
+
 		if (IsSetEqual(Neigh, T_set)) {
+			dp("Starting Step 3 ---------------------");
 			dp("T set and N(S) are equal, adjusting labels");
 			// Adjust the labels
 			AdjustLabels(graph);
@@ -143,6 +151,8 @@ public class KM {
 	
 	public void Step4Augment(Graph graph, Node u) {
 		
+		dp("Starting Step 4 ---------------------");
+		
 		Set<Node> neighbors = GetNeighbors(graph);
 		dp("T set and N(S) are NOT equal, selecting a y and augmenting");
 		// Remove T from Neighbors
@@ -158,6 +168,7 @@ public class KM {
 		}
 		
 		if (!IsNodeMatched(y, matching)) {
+			dp("y is free (" + y.GetIndex() + " -> augmenting...");
 			// if y is free, u -> y is an augmenting path
 			// Augment u -> y
 			AugmentPath(u, y, graph);
@@ -165,14 +176,22 @@ public class KM {
 		} else {
 			// else y is matched to some z
 			// find what node y is matched with.
+			dp("y is matched to some z");
 			T_set.add(y);
 			for (Edge edge : matching) {
 				//	Add z to S  and y to T
 				if (edge.GetY_Index() == y.GetIndex()) {
-					S_set.add(graph.getNodeX(edge.GetX_Index()));
+					Node z = graph.getNodeX(edge.GetX_Index());
+					S_set.add(z);
+					dp("(z,y) is ("+z.GetIndex()+","+y.GetIndex()+")");
+					if (debug) {
+						PrintEdges(matching, 0);
+					}
+					printSandT();
 					break;
 				}
 			}
+			dp("Going to step 3 from step 4...");
 			//  go to step 3
 			Update(graph, u);
 		}		
@@ -201,9 +220,9 @@ public class KM {
 		Node x = null;
 		
 		HashSet<Node> Xset = new HashSet<Node>(graph.getNodeListX());
-		for (Node n : Xset) {
-			dp("Node is from " + (n.GetIsXNode() ? "X" : "Y") + " the x node, with index " + n.GetIndex());
-		}
+	//	for (Node n : Xset) {
+	//		dp("Node is from " + (n.GetIsXNode() ? "X" : "Y") + " the x node, with index " + n.GetIndex());
+	//	}
 		
 		for (Edge e : matching) {
 			int xIndx = e.GetX_Index();
@@ -218,6 +237,8 @@ public class KM {
 	}
 	
 	public Node InitializeStep2(Graph graph) {
+
+		dp("Starting Step 2 ---------------------");
 		S_set.clear();
 		T_set.clear();
 		
@@ -234,8 +255,10 @@ public class KM {
 			return;
 		}
 		
+		dp("Augmenting a path from "+a.GetName() + " to " + b.GetName());
+		
 		// Now we can do the augmenting ...
-		dp("About to augment path...");
+		dp("Pre-Augment match and non-match edges");
 		PrintMatchedAndUnmatched();
 				
 		if (!a.GetIsXNode()) {
@@ -248,6 +271,10 @@ public class KM {
 		if (tightEdges.contains(e)) {
 			if (!matching.contains(e)) {
 				AddMatchingEdge(e);
+				dp("Added a direct edge...");
+				if (debug) {
+					PrintMatching();
+				}
 				return;
 			}
 		}
@@ -257,6 +284,13 @@ public class KM {
 			System.out.println("ERROR!! Not able to find an augmenting path...");
 			return;
 		}
+		
+		dp("There are " + visited.size() + " nodes");
+		String str = "Augmented path is: ";
+		for (Node n : visited) {
+			str += n.GetName() + " -> ";
+		}
+		dp(str);
 		
 		// Now, loop through the list and augment the edges between matched and unmatched
 		for (int i = 1; i < visited.size(); ++i) {
@@ -316,7 +350,7 @@ public class KM {
 		Iterator<Edge> sIter = null;
 
 		if (getMatchedEdge) {
-			System.out.println("Looking for a matched edge, because visited is even with " + visited.size() +" nodes");
+			dp("Looking for a matched edge, because visited is even with " + visited.size() +" nodes");
 			sIter = matching.iterator();
 		} else {
 			sIter = nonMatching.iterator();
@@ -334,11 +368,10 @@ public class KM {
 				}
 				if (FindPath(next, b, graph, visited)) {
 					return true;
-				} else {
-					visited.remove(next);
 				}
 			}			
-		}		
+		}
+		visited.remove(a);
 		return false;
 	}
 	
@@ -399,11 +432,10 @@ public class KM {
 		edges.stream() //
 		.sorted((edgeA, edgeB) -> edgeA.GetX_Index() - edgeB.GetX_Index()) // sort based on the X node
 		.forEach(edge -> System.out.println("("+ (edge.GetX_Index() + offset) +"," + (edge.GetY_Index() + offset) +")"));
-		System.out.println("****** Print Complete *****");
 	}
 	
 	public void PrintMatching() {
-		PrintEdges(matching, 0);
+		PrintEdges(matching, 1);
 	}
 	
 	// debug printing function (saving me from typing system.out ...) and conditionally disabling debug under
@@ -414,4 +446,31 @@ public class KM {
 		}
 	}
 
+	public void printSandT() {
+		String str;
+		str = "S = [";
+		for (Node n : S_set) {
+			str += n.GetIndex() + ", ";
+		}
+		str += "]";
+		dp(str);
+		
+		str = "T = [";
+		for (Node n : T_set) {
+			str += n.GetIndex() + ", ";
+		}
+		str += "]";
+		dp(str);
+		
+	}
+	
+	public void printNodes(Set<Node> nodes) {
+		String str;
+		str = "Nodes = [";
+		for(Node n : nodes) {
+			str += n.GetIndex() + ", ";
+		}
+		str += "]";
+		dp(str);
+	}
 }

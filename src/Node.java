@@ -24,6 +24,14 @@ public class Node {
 	public int GetLabel() { return nodeLabel; }
 	public void SetLabel(int val) { nodeLabel = val; }
 	
+	public String GetName() { 
+		if (GetIsXNode()) {
+			return "X-"+GetIndex();
+		} else {
+			return "Y-"+GetIndex();
+		}
+	}
+	
 	public int GetIndex() { return nodeIndex; }
 	
 	// access methods, to get and set the node to be an "X" node
